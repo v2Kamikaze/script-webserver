@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Valores</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 flex flex-col items-center min-h-screen">
+    <p class="text-gray-600 mb-6 text-center">Insira um valor no campo abaixo e envie para o servidor.</p>
+
+    <div class="flex items-center mb-6 p-6">
+        <input 
+            type="text" 
+            id="valueInput" 
+            placeholder="Insira um valor" 
+            class="w-60 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+        />
+        <button 
+            id="sendButton" 
+            class="ml-3 px-6 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+        >
+            Enviar
+        </button>
+    </div>
+
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Total que o número foi requisitado:</h3>
+    <p id="response" class="text-gray-600 text-base">Nenhum dado enviado ainda.</p>
+
+    <script>
+        document.getElementById("sendButton").addEventListener("click", async () => {
+            const value = document.getElementById("valueInput").value.trim();
+
+            
+            try {
+                const response = await fetch("http://localhost:8000/api/num/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ value }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Falha ao comunicar com o servidor.");
+                }
+
+                const data = await response.json();
+                document.getElementById("response").textContent = 
+                    `O valor "${data.value}" foi recebido ${data.count} vezes.`;
+                document.getElementById("response").classList.remove("text-red-500");
+                document.getElementById("response").classList.add("text-gray-600");
+            } catch (error) {
+                console.error("Erro:", error);
+                document.getElementById("response").textContent = 
+                    "Ocorreu um erro ao se comunicar com o servidor.";
+                document.getElementById("response").classList.remove("text-gray-600");
+                document.getElementById("response").classList.add("text-red-500");
+            }
+        });
+    </script>
+</body>
+</html>
